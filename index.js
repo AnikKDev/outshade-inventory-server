@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const dotenv = require('dotenv').config();
 const cors = require("cors");
 
@@ -31,6 +31,12 @@ async function run() {
             const categories = await categoryCollection.find(query).toArray();
             res.send(categories)
         });
+        // add a category
+        app.post('/categories', async (req, res) => {
+            const doc = req.body;
+            const result = await categoryCollection.insertOne(doc);
+            res.send(result)
+        });
 
 
         app.post('/products', async (req, res) => {
@@ -38,14 +44,31 @@ async function run() {
             const result = await productsCollection.insertOne(doc);
             res.send(result)
         });
+        // get single product
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.findOne(query);
+            res.send(result)
+        })
 
         // get selected items
         app.get('/products/:category', async (req, res) => {
             const category = req.params.category;
-            const query = { category };
-            const result = await productsCollection.find(query).toArray();
-            res.send(result)
+            if (category === 'all products') {
+                const query = {};
+                const result = await productsCollection.find(query).toArray();
+                res.send(result)
+            }
+            else {
+                const query = { category };
+                const result = await productsCollection.find(query).toArray();
+                res.send(result)
+            }
+
         })
+
+
 
 
     } finally {
