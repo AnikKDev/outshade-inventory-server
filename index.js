@@ -45,10 +45,21 @@ async function run() {
             res.send(result)
         });
         // get single product
-        app.get('/products/:id', async (req, res) => {
+        app.get('/products/:id([0-9a-fA-F]{24})', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productsCollection.findOne(query);
+            res.send(result)
+        })
+
+        // update single item
+        app.patch('/products/:id([0-9a-fA-F]{24})', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const doc = {
+                $set: req.body
+            }
+            const result = await productsCollection.updateOne(filter, doc);
             res.send(result)
         })
 
@@ -57,11 +68,13 @@ async function run() {
             const category = req.params.category;
             if (category === 'all products') {
                 const query = {};
+                console.log(query)
                 const result = await productsCollection.find(query).toArray();
                 res.send(result)
             }
             else {
                 const query = { category };
+                console.log(query)
                 const result = await productsCollection.find(query).toArray();
                 res.send(result)
             }
