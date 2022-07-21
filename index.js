@@ -61,7 +61,17 @@ async function run() {
             }
             const result = await productsCollection.updateOne(filter, doc);
             res.send(result)
-        })
+        });
+
+
+        // delete single product
+
+        app.delete('/products/:id([0-9a-fA-F]{24})', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await productsCollection.deleteOne(filter);
+            res.send(result)
+        });
 
         // get selected items
         app.get('/products/:category', async (req, res) => {
